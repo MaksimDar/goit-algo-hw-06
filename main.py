@@ -12,7 +12,6 @@ class Name(Field):
         if not value:
             raise ValueError('Name cannot be empty')
         super().__init__(value)
-    pass
            
 
 class Phone(Field):

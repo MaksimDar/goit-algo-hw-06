@@ -15,11 +15,13 @@ class Name(Field):
            
 
 class Phone(Field):
-    # перевірка номера телефону (повинно бути 10 цифр)
-    def __init__(self,value):
-        if len(value) != 10:
-            raise ValueError('Phone number must contain 10 digits')
+    def __init__(self, value):
+        self.validate(value)
         super().__init__(value)
+
+    def validate(self, value):
+        if len(value) != 10 or not value.isdigit():
+            raise ValueError("Phone number must contain exactly 10 digits")
 
 class Record:
     def __init__(self, name):
@@ -32,18 +34,19 @@ class Record:
 
     # метод видалення номера телефону.
     def remove_phone(self,phone):
-        for item in self.phones:
-            if item.value == phone:
-                self.phones.remove(item)
+        searched_phone = self.find_phone(phone)
+        if searched_phone:
+            self.phones.remove(searched_phone)
+        else:
+            raise ValueError(f"{phone} is not found")
 
     # метод редагування номера телефону.
     def edit_phone(self,old_phone,new_phone):
-        if not any(item.value == old_phone for item in self.phones):
-            raise ValueError(f'{old_phone} is not found')
+        searched_phone = self.find_phone(old_phone)
+        if searched_phone:
+            searched_phone.value = Phone(new_phone).value
         else:
-            for item in self.phones:
-                if item.value == old_phone:
-                    item.value = new_phone
+            raise ValueError(f'{old_phone} is not found')
 
     # метод пошуку об'єктів Phone
     def find_phone(self,phone):
@@ -53,8 +56,6 @@ class Record:
 
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
-    
-# Реалізовано магічний метод __str__ для красивого виводу об’єкту класу AddressBook .
 
 class AddressBook(UserDict):
     # метод додає запис до self.data.
@@ -108,5 +109,6 @@ if __name__ == '__main__':
 
     # Видалення запису Jane
     book.delete("Jane")
+
 
 
